@@ -1,46 +1,25 @@
-# Codebase Memory MCP — Cloudflare Worker + D1
+# Codebase Memory MCP — Cloudflare Pages + D1
 
-Persistent MCP memory service running on Cloudflare Workers, with Cloudflare D1 as its storage. The Worker exposes the MCP Streamable HTTP endpoint at `/mcp` and retains all seven memory tools:
+Persistent MCP memory service running as a Cloudflare Pages Function, using Cloudflare D1 for storage. The MCP Streamable HTTP endpoint is `/mcp`; the seven tools are `save_memory`, `search_memory`, `list_memories`, `update_memory`, `delete_memory`, `get_project_summary`, and `get_memory_stats`.
 
-1. `save_memory`
-2. `search_memory`
-3. `list_memories`
-4. `update_memory`
-5. `delete_memory`
-6. `get_project_summary`
-7. `get_memory_stats`
+## Cloudflare Pages setup (browser dashboard)
 
-## Configure and deploy
+1. In **Workers & Pages**, connect this GitHub repository to a Pages project and select the `cloudflare-d1-worker` branch (or merge these changes into the branch Pages deploys).
+2. Set the build command to `npm run build` and the build output directory to `public`.
+3. Create a D1 database named `codebase-memory` under **Storage & Databases → D1**.
+4. Open the Pages project **Settings → Functions → D1 database bindings** (the exact menu label can vary), add a binding named `DB`, and select the `codebase-memory` database. Configure the binding for production and preview if both environments will be used.
+5. Initialize the D1 schema by running the SQL in `migrations/0001_init.sql` in the D1 dashboard console, then redeploy the Pages project.
 
-Requirements: Node.js 20+, npm, and a Cloudflare account authenticated with Wrangler.
+The D1 database ID is set by selecting the database in the dashboard binding. There is intentionally no placeholder database ID in `wrangler.toml`; the Pages project binding supplies `env.DB` at runtime.
 
-```bash
-npm install
-npx wrangler d1 create codebase-memory
-```
-
-Copy the `database_id` from Wrangler's output into `wrangler.toml` in place of `REPLACE_WITH_D1_DATABASE_ID`, then initialize the database and deploy:
-
-```bash
-npm run db:remote
-npm run build
-npm run deploy
-```
-
-For local development, create/use Wrangler's local D1 database and run:
-
-```bash
-npm run db:local
-npm run dev
-```
-
-The MCP server URL is `https://<worker-name>.<your-subdomain>.workers.dev/mcp`. Configure your MCP client to use that Streamable HTTP URL. The Worker is stateless between requests; memory data persists in D1.
+After deployment, configure your MCP client to connect to `https://<pages-project>.pages.dev/mcp`.
 
 ## Notes
 
-- `better-sqlite3` and the Node.js stdio transport are not used by the Worker; the MCP protocol is served over HTTP and data is stored in the `DB` D1 binding.
-- The Worker currently has no authentication layer. Protect the endpoint with Cloudflare Access or add authentication before exposing it to untrusted clients.
-- `npm run db:local` initializes Wrangler's local database. Use `npm run db:remote` only when you intend to change the Cloudflare D1 database.
+- This is a Pages Function project, not a static-only Pages site and not a standalone Worker deployment. The `functions/mcp.ts` file handles `/mcp` and delegates to the shared MCP implementation.
+- `better-sqlite3` and the Node.js stdio transport are not used in this deployment.
+- The endpoint has no authentication by default. Restrict access with Cloudflare Access or add authentication before exposing it to untrusted clients.
+- Avoid using Pages' generic static asset deployment or the `wrangler deploy` command; use the Pages Git integration or `wrangler pages deploy ./public`.
 
 ## License
 
