@@ -1,0 +1,14 @@
+
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "personal-memory": {
+      "type": "local",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\acerx\\codebase-memory-mcp\\dist\\index.js"
+      ],
+      "enabled": true
+    }
+  }
+}
