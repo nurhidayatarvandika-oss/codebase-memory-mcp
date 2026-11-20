@@ -1,0 +1,23 @@
+codebase-memory-mcp/
+│
+├── src/
+│   ├── index.ts
+│   ├── server.ts
+│   ├── memory/
+│   │   ├── manager.ts
+│   │   ├── storage.ts
+│   │   └── search.ts
+│   ├── tools/
+│   │   ├── save-memory.ts
+│   │   ├── search-memory.ts
+│   │   ├── read-memory.ts
+│   │   └── update-memory.ts
+│   └── scanner/
+│       └── codebase-scanner.ts
+│
+├── tests/
+├── memory/
+├── package.json
+├── tsconfig.json
+├── README.md
+└── .gitignore
